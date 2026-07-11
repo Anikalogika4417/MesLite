@@ -1,4 +1,5 @@
 using MesLite.Data;
+using MesLite.Helpers;
 using MesLite.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -18,9 +19,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorNumbersToAdd: null)));
 
-builder.Services.AddScoped<IProductionLinesDbActions, ProductionLinesDbActions>();
+builder.Services.AddScoped<IProductionLinesDbActions, ProductionLinesDbActions>(); 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -33,6 +38,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers(); 
 
 app.Run();

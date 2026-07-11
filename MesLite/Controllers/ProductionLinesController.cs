@@ -20,13 +20,33 @@ public class ProductionLinesController(IProductionLinesDbActions dbActions) : Co
         return Results.Ok(await dbActions.GetProductionLinesAsync(pageIndex, pageSize));
     }
 
+    [HttpGet("{lineId}")]
+    public async Task<IResult> GetLineById(Guid lineId)
+    {
+        if (lineId == Guid.Empty)
+            throw new ArgumentException("Line id is empty Guid");
+
+        return Results.Ok(await dbActions.GetProductionLineByIdAsync(lineId));
+    }
+
     [HttpPost]
     public async Task<IResult> CreateLine(ProductionLine productionLineInfo)
     {
         if (string.IsNullOrWhiteSpace(productionLineInfo.LineName))
-            return Results.BadRequest("Production line name is empty");
+            throw new ArgumentException("Production line name is empty");
 
         await dbActions.CreateProductionLineAsync(productionLineInfo);
+
+        return Results.Ok();
+    }
+
+    [HttpDelete]
+    public async Task<IResult> StopLine(Guid lineId)
+    {
+        if (lineId == Guid.Empty)
+            throw new ArgumentException("Line id is empty Guid");
+
+        await dbActions.StopProductionLineAsync(lineId);
 
         return Results.Ok();
     }
