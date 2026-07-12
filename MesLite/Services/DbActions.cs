@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MesLite.Services;
 
-public class ProductionLinesDbActions(AppDbContext context, ILogger<ProductionLinesDbActions> logger) : IProductionLinesDbActions
+public class DbActions(AppDbContext context, ILogger<DbActions> logger) : IDbActions
 {
     #region Get
     public async Task<List<ProductionLine>> GetProductionLinesAsync(int pageIndex, int pageSize, CancellationToken token = default)
@@ -48,6 +48,22 @@ public class ProductionLinesDbActions(AppDbContext context, ILogger<ProductionLi
         await context.SaveChangesAsync(token);
 
         logger.LogInformation("New production line with {id} was creatated", productionLineInfo.LineId);
+    }
+
+    public async Task CreateBatchAsync(Batch batchInfo, CancellationToken token = default)
+    {
+        logger.LogInformation("Start creating new batch with {id}", batchInfo.BatchId);
+
+        // Check that line exist
+        var line = await context.ProductionLines.FirstOrDefaultAsync(l => l.LineId ==  batchInfo.LineId, token);
+
+        if (line is null)
+            throw new EntityNotFoundException(nameof(ProductionLine), batchInfo.LineId);
+
+        context.Batches.Add(batchInfo);
+        await context.SaveChangesAsync(token);
+
+        logger.LogInformation("New batch with {id} was creatated", batchInfo.BatchId);
     }
 
     #region Delete

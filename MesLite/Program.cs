@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorNumbersToAdd: null)));
 
-builder.Services.AddScoped<IProductionLinesDbActions, ProductionLinesDbActions>(); 
+builder.Services.AddScoped<IDbActions, DbActions>(); 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 

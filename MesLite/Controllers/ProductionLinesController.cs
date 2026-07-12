@@ -1,4 +1,5 @@
 ﻿using MesLite.Models;
+using MesLite.Models.DTO;
 using MesLite.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,7 @@ namespace MesLite.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductionLinesController(IProductionLinesDbActions dbActions) : ControllerBase
+public class ProductionLinesController(IDbActions dbActions) : ControllerBase
 {
     [HttpGet]
     public async Task<IResult> GetAllLines(int pageIndex, int pageSize)
@@ -30,10 +31,18 @@ public class ProductionLinesController(IProductionLinesDbActions dbActions) : Co
     }
 
     [HttpPost]
-    public async Task<IResult> CreateLine(ProductionLine productionLineInfo)
+    public async Task<IResult> CreateLine(CreateProductionLineRequest productionLineInfoRequest)
     {
-        if (string.IsNullOrWhiteSpace(productionLineInfo.LineName))
+        if (string.IsNullOrWhiteSpace(productionLineInfoRequest.LineName))
             throw new ArgumentException("Production line name is empty");
+
+        // Mapping
+        var productionLineInfo = new ProductionLine()
+        {
+            LineId = Guid.NewGuid(),
+            LineName = productionLineInfoRequest.LineName,
+            Status = LineStatus.Active
+        };
 
         await dbActions.CreateProductionLineAsync(productionLineInfo);
 
